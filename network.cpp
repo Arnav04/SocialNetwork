@@ -7,13 +7,13 @@
 
 Network::Network() {}
 
-int Network::readUsers(const char* fileName) 
+int Network::readUsers(const char* fileName)
 {
     std::ifstream file(fileName);
 
     std::string line;
-    
-    if (!file.is_open() || !file) 
+
+    if (!file.is_open() || !file)
     {
         return -1;
     }
@@ -23,29 +23,29 @@ int Network::readUsers(const char* fileName)
     file >> users;
     std::getline(file, line);
 
-    while (std::getline(file, line)) 
+    while (std::getline(file, line))
     {
-        
+
         int id = std::stoi(line);
-        std::getline(file, line); 
+        std::getline(file, line);
         std::string name = line.substr(1);
-        std::getline(file, line); 
+        std::getline(file, line);
         int year = std::stoi(line);
-        std::getline(file, line);  
+        std::getline(file, line);
         int zip = std::stoi(line);
 
-        std::getline(file, line); 
+        std::getline(file, line);
         std::stringstream val(line);
-        std::set<int> friends;  
+        std::set<int> friends;
         int s;
-            
-        while (val >> s) 
+
+        while (val >> s)
         {
             friends.insert(s);
         }
 
         User* u = new User(id, name, year, zip, friends);
-        addUser(u); 
+        addUser(u);
     }
 
     file.close();
@@ -53,15 +53,15 @@ int Network::readUsers(const char* fileName)
 }
 
 
-int Network::writeUsers(const char* fileName) 
+int Network::writeUsers(const char* fileName)
 {
     std::ofstream file(fileName);
-    if (!file.is_open()) 
+    if (!file.is_open())
     {
         return -1;
     }
     file << users.size() << "\n";
-    for (std::size_t i = 0; i < users.size(); i++) 
+    for (std::size_t i = 0; i < users.size(); i++)
     {
         file << users[i]->getId() << std::endl;
         file << "\t" << users[i]->getName() << std::endl;
@@ -69,7 +69,7 @@ int Network::writeUsers(const char* fileName)
         file << "\t" << users[i]->getZip() << std::endl;
         std::set<int> friends = users[i]->getFriends();
         file << "\t";
-        for (auto f : friends) 
+        for (auto f : friends)
         {
             file << f << " ";
         }
@@ -436,7 +436,7 @@ std::vector<std::vector<int>> Network::groups()
     return output;
 }
 
-void Network::addPost(int ownerId, std::string message, int likes, bool isIncoming, std::string authorName, bool isPublic)
+void Network::addPost(int ownerId, std::string message, int likes, int laughs, int dislikes, std::vector<int> lc, std::vector<int> lac, std::vector<int> dc,  bool isIncoming, std::string authorName, bool isPublic)
 {
     int messageId = 0;
 
@@ -453,11 +453,11 @@ void Network::addPost(int ownerId, std::string message, int likes, bool isIncomi
 
     if (isIncoming == false)
     {
-        getUser(ownerId)->addPost(new Post(messageId, ownerId, message, likes));
+        getUser(ownerId)->addPost(new Post(messageId, ownerId, message, likes, laughs, dislikes, lc, lac, dc));
     }
     else
     {
-        getUser(ownerId)->addPost(new IncomingPost(messageId, ownerId, message, likes, isPublic, authorName));
+        getUser(ownerId)->addPost(new IncomingPost(messageId, ownerId, message, likes, laughs, dislikes, lc, lac, dc, isPublic, authorName));
     }
     
 }
@@ -481,16 +481,65 @@ int Network::readPosts(const char* fname)
 
     std::getline(file, line);
 
-    while (std::getline(file, line)) 
+    while (std::getline(file, line))
     {
         int messageId = std::stoi(line);
-        std::getline(file, line); 
+        std::getline(file, line);
         std::string message = line.substr(1);
-        std::getline(file, line); 
+        std::getline(file, line);
         int ownerId = std::stoi(line);
-        std::getline(file, line); 
+        std::getline(file, line);
         int likes = std::stoi(line);
-        std::getline(file, line); 
+        std::getline(file, line);
+        int laughs = std::stoi(line);
+        std::getline(file, line);
+        int dislikes = std::stoi(line);
+        std::getline(file, line);
+        std::vector<int> like_list;
+        if (line == "")
+        {
+            std::getline(file, line);
+        }
+        else
+        {
+            std::stringstream li(line);
+            int n;
+            while (li >> n)
+            {
+                like_list.push_back(n);
+            }
+            std::getline(file, line);
+        }
+        std::vector<int> laugh_list;
+        if (line == "")
+        {
+            std::getline(file, line);
+        }
+        else
+        {
+            std::stringstream li1(line);
+            int n1;
+            while (li1 >> n1)
+            {
+                laugh_list.push_back(n1);
+            }
+            std::getline(file, line);
+        }
+        std::vector<int> dislike_list;
+        if (line == "")
+        {
+            std::getline(file, line);
+        }
+        else
+        {
+            std::stringstream li2(line);
+            int n2;
+            while (li2 >> n2)
+            {
+                dislike_list.push_back(n2);
+            }
+            std::getline(file, line);
+        }
         std::string isPublic;
         if (line != "")
         {
@@ -512,7 +561,7 @@ int Network::readPosts(const char* fname)
         }
         if (author == "" && isPublic == "")
         {
-            Post* p = new Post(messageId, ownerId, message, likes);
+            Post* p = new Post(messageId, ownerId, message, likes, laughs, dislikes, like_list, laugh_list, dislike_list);
             User* u = getUser(ownerId);
             u->addPost(p);
         }
@@ -521,12 +570,12 @@ int Network::readPosts(const char* fname)
             User* u = getUser(ownerId);
             if (isPublic == "public")
             {
-                IncomingPost* p = new IncomingPost(messageId, ownerId, message, likes, true, author);
+                IncomingPost* p = new IncomingPost(messageId, ownerId, message, likes, laughs, dislikes, like_list, laugh_list, dislike_list, true, author);
                 u->addPost(p);
             }
             else
             {
-                IncomingPost* p = new IncomingPost(messageId, ownerId, message, likes, false, author);
+                IncomingPost* p = new IncomingPost(messageId, ownerId, message, likes, laughs, dislikes, like_list, laugh_list, dislike_list, false, author);
                 u->addPost(p);
             }
         }            
@@ -561,6 +610,29 @@ int Network::writePosts(const char* fname)
         file << "\t" << posts[i]->getMessage() << std::endl;
         file << "\t" << posts[i]->getOwnerId() << std::endl;
         file << "\t" << posts[i]->getLikes() << std::endl;
+        file << "\t" << posts[i]->getLaugh() << std::endl;
+        file << "\t" << posts[i]->getDislike() << std::endl;
+        std::vector<int> like_list = posts[i]->getLikedUsers();
+        file << "\t";
+        for (auto l : like_list)
+        {
+            file << l << " ";
+        }
+        file << std::endl;
+        std::vector<int> laugh_list = posts[i]->getLaughs();
+        file << "\t";
+        for (auto l : laugh_list)
+        {
+            file << l << " ";
+        }
+        file << std::endl;
+        std::vector<int> dislike_list = posts[i]->getDislikes();
+        file << "\t";
+        for (auto l : dislike_list)
+        {
+            file << l << " ";
+        }
+        file << std::endl;
         if (posts[i]->getAuthor() == "")
         {
             file << "" << std::endl;
