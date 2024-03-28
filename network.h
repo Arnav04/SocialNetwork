@@ -74,7 +74,7 @@ public:
 
     // PRE: User ID, actual message, number of likes from the post, boolean parameter to determine whether post is IncomingPost, author of incomingPost, boolean val to determine if post is public
     // POST: Adds post to user's messages_ vector
-    void addPost(int ownerId, std::string message, int likes, bool isIncoming, std::string authorName, bool isPublic);
+    void addPost(int ownerId, std::string message, int likes, int laughs, int dislikes, std::vector<int> lc, std::vector<int> lac, std::vector<int> dc,  bool isIncoming, std::string authorName, bool isPublic);
 
     // PRE: User's ID, int for "how many" most recent posts to include, boolean parameter to determine whether only public posts should be in the output string
     // POST: Returns concatenated toString() outputs of individual posts within the messages_ vector of the specified user
