@@ -37,6 +37,36 @@ public:
     // POST: Adds friend after clicking "Add Friend" button on another profile
     void addF();
 
+    void likeClicked1();
+
+    void laughClicked1();
+
+    void dislikeClicked1();
+
+    void likeClicked2();
+
+    void laughClicked2();
+
+    void dislikeClicked2();
+
+    void likeClicked3();
+
+    void laughClicked3();
+
+    void dislikeClicked3();
+
+    void likeClicked4();
+
+    void laughClicked4();
+
+    void dislikeClicked4();
+
+    void likeClicked5();
+
+    void laughClicked5();
+
+    void dislikeClicked5();
+
     // PRE: N/A
     // POST: Destructor, socialnetworkwindow object and ui not needed after application is closed
     ~SocialNetworkWindow();
