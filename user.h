@@ -57,6 +57,9 @@ public:
     // POST: Returns concatenated toString() outputs of individual posts within the messages_ vector of the user
     std::string getPostsString(int howMany, bool showOnlyPublic);
 
+    std::vector<Post*> getPublicMessages();
+
+
 private:
     int id;
     std::string name;
