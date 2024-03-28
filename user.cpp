@@ -1,7 +1,7 @@
 #include "user.h"
 
 User::User(int id, const std::string& name, int yr, int zip, const std::set<int>& friends)
-    : id(id), name(name), yr(yr), zip(zip), friends(friends) {} 
+    : id(id), name(name), yr(yr), zip(zip), friends(friends) {}
 
 User::User() : id(0), name(""), yr(0), zip(0) {}
 
@@ -76,4 +76,17 @@ std::string User::getPostsString(int howMany, bool showOnlyPublic)
         j--;
     }   
     return output;
+}
+
+std::vector<Post*> User::getPublicMessages()
+{
+    std::vector<Post*> public_messages;
+    for (size_t i = 0; i < messages_.size(); i++)
+    {
+        if (messages_[i]->getIsPublic() == true)
+        {
+            public_messages.push_back(messages_[i]);
+        }
+    }
+    return public_messages;
 }
